@@ -16,7 +16,7 @@ from scipy.ndimage import gaussian_filter
 from scipy.ndimage import rotate
 
 
-def add_noise(images, noise_level=0.5):
+def add_gaussian_noise(images, noise_level=0.5):
     """
     Adds Gaussian noise to images from the digits dataset.
 
@@ -33,53 +33,6 @@ def add_noise(images, noise_level=0.5):
     noisy_images = np.clip(noisy_images, 0, 16)
     
     return noisy_images
-
-
-def add_blur(images, sigma=1.0):
-    """
-    Applies Gaussian blur to the images.
-
-    Args:
-        images (np.ndarray): Array of shape (n_images, 8, 8).
-        sigma (float): Degree of blur (the larger the sigma, the blurrier the image).
-
-    Returns:
-        np.ndarray: Blurred images.
-    """
-    blurred_images = np.array([gaussian_filter(img, sigma=sigma) for img in images])
-    return np.clip(blurred_images, 0, 16)
-
-
-
-def rotate_images(images, angle=15):
-    """
-    Rotates each image in the array around its center.
-
-    Args:
-        images (np.ndarray): Array of images with shape (n_images, 8, 8).
-        angle (float): Rotation angle in degrees (positive = counterclockwise).
-
-    Returns:
-        np.ndarray: Rotated images, with the same shape as the original ones.
-    """
-    rotated = np.array([rotate(img, angle=angle, reshape=False, mode='nearest') for img in images])
-    return np.clip(rotated, 0, 16)
-
-
-
-def adjust_brightness(images, factor=1.2):
-    """
-    Adjusts the brightness of the images.
-
-    Args:
-        images (np.ndarray): Array of shape (n_images, 8, 8).
-        factor (float): Brightness factor (>1 increases brightness, <1 decreases it).
-
-    Returns:
-        np.ndarray: Images with adjusted brightness.
-    """
-    bright_images = images * factor
-    return np.clip(bright_images, 0, 16)
 
 
 
