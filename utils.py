@@ -62,3 +62,42 @@ def add_impulse_noise(images, noise_ratio=0.05):
             image[i, j] = np.random.choice([0, 16])  # salt or pepper
 
     return noisy_images
+
+
+
+def visualize_transform(images, transform, index=0, title = 'Transformed'):
+    """
+    Visualizes the original and transformed images side by side.
+
+    Args:
+        images (np.ndarray): Array of shape (n_images, 8, 8).
+        transform (function): Transformation function to apply to the images.
+    """
+    transformed_images = transform(images)
+
+
+    fig, axs = plt.subplots(1, 2)
+    axs[0].imshow(images[index], cmap='gray')
+    axs[0].set_title("Original")
+    axs[1].imshow(transformed_images[index], cmap='gray')
+    axs[1].set_title(title)
+    for ax in axs:
+        ax.axis('off')
+    plt.tight_layout()
+    plt.show()
+
+
+
+def images_to_csv(images, filename):
+    """
+    Save images to a CSV file.
+
+    Args:
+        images (np.ndarray): Array of shape (n_images, 8, 8).
+        filename (str): Name of the output CSV file.
+    """
+    n_images = images.shape[0]
+    flat_images = images.reshape(n_images, -1)
+    df = pd.DataFrame(flat_images)
+    df['label'] = digits.target
+    df.to_csv(filename, index=False)
