@@ -15,6 +15,13 @@ from sklearn.datasets import load_digits
 from scipy.ndimage import gaussian_filter
 from scipy.ndimage import rotate
 
+# Libraries for deep learning
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from torch.utils.data import Dataset, DataLoader
+from torchvision import datasets, transforms
+
 
 def add_gaussian_noise(images, noise_level=0.5):
     """
@@ -87,17 +94,43 @@ def visualize_transform(images, transform, index=0, title = 'Transformed'):
     plt.show()
 
 
+class AddGaussianNoise:
+    def __init__(self, noise_level=0.5):
+        self.noise_level = noise_level
 
-def images_to_csv(images, filename):
-    """
-    Save images to a CSV file.
+    def __call__(self, tensor):
+        """
+        Args:
+            tensor (torch.Tensor): Image tensor of shape (1, 28, 28) with values in [0, 1]
+        Returns:
+            torch.Tensor: Noisy image tensor, still in [0, 1]
+        """
+        noise = torch.randn(tensor.size()) * self.noise_level
+        noisy_tensor = tensor + noise
+        return torch.clamp(noisy_tensor, 0., 1.)
+    
+    
 
-    Args:
-        images (np.ndarray): Array of shape (n_images, 8, 8).
-        filename (str): Name of the output CSV file.
-    """
-    n_images = images.shape[0]
-    flat_images = images.reshape(n_images, -1)
-    df = pd.DataFrame(flat_images)
-    df['label'] = digits.target
-    df.to_csv(filename, index=False)
+class AddImpulseNoise:
+    def __init__(self, probability=0.05):
+        """
+        Args:
+            probability (float): Proportion of pixels to be replaced by 0 or 1 (default = 5%)
+        """
+        self.probability = probability
+
+    def __call__(self, tensor):
+        """
+        Args:
+            tensor (torch.Tensor): Image tensor of shape (1, 28, 28) with values in [0, 1]
+        Returns:
+            torch.Tensor: Noisy image tensor with impulse noise
+        """
+        noisy_tensor = tensor.clone()
+        mask = torch.rand_like(tensor)
+
+        # Apply salt (1) where mask < p/2, and pepper (0) where mask > 1 - p/2
+        noisy_tensor[mask < self.probability / 2] = 0.0
+        noisy_tensor[mask > 1 - self.probability / 2] = 1.0
+
+        return noisy_tensor
