@@ -134,3 +134,15 @@ class AddImpulseNoise:
         noisy_tensor[mask > 1 - self.probability / 2] = 1.0
 
         return noisy_tensor
+    
+def plot_validation_accuracy(x, y, x_label, title, color='C0', label='Validation Accuracy'):
+    plt.figure(figsize=(8, 5))
+    plt.plot(x, y, marker='o', linestyle='-', color=color, label=label)
+    plt.ylim(0, 1)
+    plt.xlabel(x_label)
+    plt.ylabel("Validation Accuracy")
+    plt.title(title)
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
