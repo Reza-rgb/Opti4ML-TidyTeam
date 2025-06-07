@@ -135,9 +135,11 @@ class AddImpulseNoise:
 
         return noisy_tensor
     
-def plot_validation_accuracy(x, y, x_label, title, color='C0', label='Validation Accuracy'):
+def plot_validation_accuracy(x, y, x_label, title, color='C0', label='Validation Accuracy', convergence_epoch=-1):
     plt.figure(figsize=(8, 5))
     plt.plot(x, y, marker='o', linestyle='-', color=color, label=label)
+    if convergence_epoch != -1 and 0 <= convergence_epoch < len(x):
+        plt.axvline(x=x[convergence_epoch], color='red', linestyle='--', label='Convergence Point')
     plt.ylim(0, 1)
     plt.xlabel(x_label)
     plt.ylabel("Validation Accuracy")
