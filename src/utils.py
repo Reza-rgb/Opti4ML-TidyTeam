@@ -22,6 +22,8 @@ import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
 from torchvision import datasets, transforms
 
+from typing import Sequence, Iterable, Optional, Tuple
+
 
 def add_gaussian_noise(images, noise_level=0.5):
     """
@@ -147,4 +149,115 @@ def plot_validation_accuracy(x, y, x_label, title, color='C0', label='Validation
     plt.grid(True)
     plt.legend()
     plt.tight_layout()
+    plt.show()
+
+
+
+def plot_multi_curves(
+    x: Sequence[float],
+    *y_vars: Iterable[float],
+    labels: Optional[Sequence[str]] = None,
+    title: str = "",
+    xlabel: str = "",
+    ylabel: str = "",
+    markers: Optional[Sequence[str]] = None,
+    linestyles: Optional[Sequence[str]] = None,
+    figsize: Tuple[int, int] = (10, 6),
+    grid: bool = True,
+    legend_loc: str = "best",
+    save_path: Optional[str] = None,
+) -> None:
+    """
+    Plot several curves that all share the same x-axis.
+
+    Parameters
+    ----------
+    x : 1-D sequence
+        Common x-axis values.
+    *y_vars : 1-D sequences
+        Any number of y-series (each must have the same length as `x`).
+        Example:   plot_multi_curves(x, y1, y2, y3, labels=[...])
+                   plot_multi_curves(x, *[y1, y2], labels=[...])
+    labels : sequence of str, optional
+        One label per y-series. Required if you want a legend.
+    title, xlabel, ylabel : str, optional
+        Figure and axis labels.
+    markers, linestyles : sequences, optional
+        Custom marker and line styles (same length as *y_vars*).
+        Defaults: Matplotlib’s cycling styles.
+    figsize : tuple of int, optional
+        Figure dimensions in inches.
+    grid : bool, optional
+        Toggle grid lines.
+    legend_loc : str, optional
+        Legend position (same `loc` argument as `plt.legend`).
+    save_path : str, optional
+        If not None, save the figure to this file (png, pdf, …).
+
+    Raises
+    ------
+    ValueError
+        If lengths of inputs are inconsistent.
+
+    Examples
+    --------
+    >>> # Suppose you already defined the following arrays:
+    >>> # num_examples_MNIST_Monte_Carlo
+    >>> # num_examples_MNIST_Gaussian_cum_curr_learn
+    >>> x_points = [1, 2, 3, 4, 5]
+    >>> plot_multi_curves(
+    ...     x_points,
+    ...     num_examples_MNIST_Monte_Carlo,
+    ...     num_examples_MNIST_Gaussian_cum_curr_learn,
+    ...     labels=["Monte-Carlo", "Gaussian + Curriculum"],
+    ...     title="MNIST – Validation Accuracy vs Training Size",
+    ...     xlabel="Training samples",
+    ...     ylabel="Validation Accuracy",
+    ...     markers=["o", "s"],
+    ...     linestyles=["-", "--"],
+    ... )
+    """
+    # --- basic checks --------------------------------------------------------
+    if not y_vars:
+        raise ValueError("At least one y-series must be provided.")
+
+    if labels is not None and len(labels) != len(y_vars):
+        raise ValueError("`labels` must match the number of y-series.")
+
+    if markers is not None and len(markers) != len(y_vars):
+        raise ValueError("`markers` must match the number of y-series.")
+
+    if linestyles is not None and len(linestyles) != len(y_vars):
+        raise ValueError("`linestyles` must match the number of y-series.")
+
+    x = np.asarray(x)
+    plt.figure(figsize=figsize)
+
+    # --- draw each curve -----------------------------------------------------
+    for idx, y in enumerate(y_vars):
+        y_arr = np.asarray(y)
+        if y_arr.shape != x.shape:
+            raise ValueError(
+                f"y-series #{idx} length ({y_arr.size}) does not match x ({x.size})"
+            )
+
+        marker = markers[idx] if markers else None
+        linestyle = linestyles[idx] if linestyles else "-"
+        label = labels[idx] if labels else None
+
+        plt.plot(x, y_arr, marker=marker, linestyle=linestyle, label=label)
+
+    # --- aesthetics ----------------------------------------------------------
+    plt.title(title, fontsize=14)
+    plt.xlabel(xlabel, fontsize=12)
+    plt.ylabel(ylabel, fontsize=12)
+    if grid:
+        plt.grid(alpha=0.3)
+
+    if labels:  # only draw legend when labels are supplied
+        plt.legend(loc=legend_loc)
+
+    plt.tight_layout()
+    if save_path:
+        plt.savefig(save_path, dpi=300)
     plt.show()
