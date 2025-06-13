@@ -29,9 +29,9 @@ Each notebook is structured to evaluate the following techniques:
 
 ## Noise Robustness
 
-To test robustness to noisy data, we introduced two types of noise to both MNIST and CIFAR-10:
+To test robustness on noisy data, we introduced two types of noise to both MNIST and CIFAR-10:
 
 - **Gaussian Noise**
 - **Impulse (Salt-and-Pepper) Noise**
 
-Noisy variants of the datasets were used to have a precise difficulty assessment for each data point (with different noise levels)
+Noisy variants of the datasets were used to have a precise difficulty assessment for each data point (with different noise levels).
